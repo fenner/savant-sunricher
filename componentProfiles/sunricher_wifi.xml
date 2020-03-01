@@ -16,12 +16,16 @@ Channel
 Value
 Checksum = zone + category + channel + value
 Suffix : AAAA
+
+Note: the checksum_offset_A="220" to offset the checksum
+of the 5533613902 prefix.  (checksum of 5533613902
+is 0x24, so you add 0xDC = 220 to offset it)
 -->
     <component_properties>
         <always_repeat_input_selection>true</always_repeat_input_selection>
     </component_properties>
     <control_interfaces preferred="ip">
-        <ip name_on_component="LAN" response_time_length_ms="500" port="8899" protocol="tcp">
+        <ip name_on_component="LAN" response_time_length_ms="500" port="8899" protocol="tcp" checksum_offset_A="220">
             <send_prefix type="hex">5533613902</send_prefix>
             <send_postfix type="hex">AAAA</send_postfix>
         </ip>
@@ -69,5 +73,65 @@ Suffix : AAAA
                 </command_interface>
             </action>
         </universal_component_actions>
+        <resource_component_actions resource_type="ENV_LIGHTINGCONTROLLER_SOURCE">
+            <action name="SwitchOff">
+                <action_argument name="Address1" note="Driver address (1-255)"/>
+                <command_interface interface="ip">
+                    <command response_required="no">
+			<command_string type="hex"></command_string>	<!-- parameters only -->
+			<parameter_list>
+			    <parameter parameter_data_type="hex" action_argument="Address1" parameter_data_width="1" parameter_total_width="1"></parameter>
+			    <parameter parameter_data_type="hex">0212A9</parameter>
+			    <checksum_parameter parameter_data_type="hex" checksum_type="standard" parameter_data_width="1" parameter_total_width="1"></checksum_parameter>
+			</parameter_list>
+                        <delay ms_delay="200"></delay>
+                    </command>
+                </command_interface>
+            </action>
+            <action name="SwitchOn">
+                <action_argument name="Address1" note="Driver address (1-255)"/>
+                <command_interface interface="ip">
+                    <command response_required="no">
+			<command_string type="hex"></command_string>	<!-- parameters only -->
+			<parameter_list>
+			    <parameter parameter_data_type="hex" action_argument="Address1" parameter_total_width="1"></parameter>
+			    <parameter parameter_data_type="hex">0212AB</parameter>
+			    <checksum_parameter parameter_data_type="hex" checksum_type="standard" parameter_data_width="1" parameter_total_width="1"></checksum_parameter>
+			</parameter_list>
+                        <delay ms_delay="200"></delay>
+                    </command>
+                </command_interface>
+            </action>
+        </resource_component_actions>
+        <custom_component_actions>
+            <action name="RGBFade On">
+                <action_argument name="Address1" note="Driver address (1-255)"/>
+                <command_interface interface="ip">
+                    <command response_required="no">
+			<command_string type="hex"></command_string>	<!-- parameters only -->
+			<parameter_list>
+			    <parameter parameter_data_type="hex" action_argument="Address1" parameter_total_width="1"></parameter>
+			    <parameter parameter_data_type="hex">024E15</parameter>
+			    <checksum_parameter parameter_data_type="hex" checksum_type="standard" parameter_data_width="1" parameter_total_width="1"></checksum_parameter>
+			</parameter_list>
+                        <delay ms_delay="200"></delay>
+                    </command>
+                </command_interface>
+            </action>
+            <action name="RGBFade Off">
+                <action_argument name="Address1" note="Driver address (1-255)"/>
+                <command_interface interface="ip">
+                    <command response_required="no">
+			<command_string type="hex"></command_string>	<!-- parameters only -->
+			<parameter_list>
+			    <parameter parameter_data_type="hex" action_argument="Address1" parameter_total_width="1"></parameter>
+			    <parameter parameter_data_type="hex">024F15</parameter>
+			    <checksum_parameter parameter_data_type="hex" checksum_type="standard" parameter_data_width="1" parameter_total_width="1"></checksum_parameter>
+			</parameter_list>
+                        <delay ms_delay="200"></delay>
+                    </command>
+                </command_interface>
+            </action>
+        </custom_component_actions>
     </logical_component>
 </component>
