@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" manufacturer="Sunricher" model="WiFi" rpm_xml_version="5.0" minimum_component_engine_version="0.0" xsi:noNamespaceSchemaLocation="racepoint_component_profile.xsd" alias="Sunricher WiFi" device_class="Lighting_controller">
+    <notes>
+		Version: 1.0 Change: Initial version
+
+Version: 5.0, Change: added image
+</notes>
+    <!--
+The commands are 11 bytes long:
+Preamble: 55
+Client ID: 336139
+?: 02
+Zone	(bitmask: zone value 3 = zones 1+2)
+Category
+Channel
+Value
+Checksum = zone + category + channel + value
+Suffix : AAAA
+-->
+    <component_properties>
+        <always_repeat_input_selection>true</always_repeat_input_selection>
+    </component_properties>
+    <control_interfaces preferred="ip">
+        <ip name_on_component="LAN" response_time_length_ms="500" port="8899" protocol="tcp">
+            <send_prefix type="hex">5533613902</send_prefix>
+            <send_postfix type="hex">AAAA</send_postfix>
+        </ip>
+    </control_interfaces>
+    <media_interfaces>
+        <data name_on_component="LAN">
+            <combined_media>
+                <data_media type="ethernet"></data_media>
+                <control port="8899"></control>
+            </combined_media>
+        </data>
+        <internal name_on_component="Lighting Zone 1">
+            <environmental_media></environmental_media>
+            <resource resource_type="ENV_LIGHTINGCONTROLLER_SOURCE"></resource>
+        </internal>
+    </media_interfaces>
+    <state_variable_list>
+        <state_variable name="Power_current_power_Lighting Controller" state_center_binding="CurrentPowerStatus" state_center_type="string" owning_logical_component="Lighting Controller">OFF</state_variable>
+        <state_variable name="Mute_current_mute_Lighting Controller" state_center_binding="CurrentMuteStatus" state_center_type="string" owning_logical_component="Lighting Controller">OFF</state_variable>
+        <volume_state_variable name="Volume_current_volume_Lighting Controller" state_center_binding="CurrentVolume" state_center_type="integer" owning_logical_component="Lighting Controller" granularity="1" min_value="0" max_value="100">0</volume_state_variable>
+    </state_variable_list>
+    <logical_component logical_component_name="Lighting Controller">
+        <implementation>
+            <internal name_on_component="Lighting Zone 1"></internal>
+        </implementation>
+        <universal_component_actions>
+            <action name="PowerOn">
+                <execute_on_state_variable_condition name="Power_current_power_Lighting Controller" test_condition="not_equal">ON</execute_on_state_variable_condition>
+                <update_state_variable name="Power_current_power_Lighting Controller" update_type="set" update_source="constant">ON</update_state_variable>
+                <command_interface interface="ip">
+                    <command response_required="no">
+                        <command_string type="hex">FF0212ABBE</command_string>
+                        <delay ms_delay="200"></delay>
+                    </command>
+                </command_interface>
+            </action>
+            <action name="PowerOff">
+                <execute_on_state_variable_condition name="Power_current_power_Lighting Controller" test_condition="not_equal">OFF</execute_on_state_variable_condition>
+                <update_state_variable name="Power_current_power_Lighting Controller" update_type="set" update_source="constant">OFF</update_state_variable>
+                <command_interface interface="ip">
+                    <command response_required="no">
+                        <command_string type="hex">FF0212A9BC</command_string>
+                        <delay ms_delay="200"></delay>
+                    </command>
+                </command_interface>
+            </action>
+        </universal_component_actions>
+    </logical_component>
+</component>
